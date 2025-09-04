@@ -8,7 +8,7 @@ elif end enum false for match
 if in infer local next nil not
 or proc return static struct
 then trait true typedef union
-undefined while xor
+undefined volatile while xor
 ```
 
 ## Operators
@@ -226,11 +226,10 @@ end
 ## Core Libraries for ToolipLang
 These are libraries and core features and libraries of ToolipLang
 ```ruby
-compiler # includes token.tlp, lexer.tlp, parser.tlp, ast.tlp, types.tlp, ir.tlp, optimizer.tlp, codegen.tlp, mockRepl.tlp, compMacros.tlp
+compiler # includes token.tlp, lexer.tlp, parser.tlp, ast.tlp, types.tlp, ir.tlp, optimizer.tlp, codegen.tlp, mockRepl.tlp, compMacros.tlp, builtins.tlp
 asm # includes x86.tlp, arm.tlp and riscV.tlp
 mem # basic memory management utilities
 endian # stop using big endian, but I'll cover that shit for you because I like you. Baka >_<
-link
 ```
 
 ## Standard Libraries for ToolipLang
