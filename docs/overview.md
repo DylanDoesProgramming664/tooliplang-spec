@@ -108,11 +108,11 @@ _ # unnamed variable; ignores the value given to it
 . # separator for fields of a type such as structs. `type.fieldIdent type.fieldProcIdent(args)`
 : # separator for a field of an ident of a ProcValue. `var:fieldProcIdent(args) == typeOfVar.fieldProcIdent(^type self, args)`
 ; #optional early statement terminator
-, # separator for compound type values, function args, and multiple variables or values on the same line
+, # separator for compound type values, procedure args, and multiple variables or values on the same line
 [ | ] # used for array, compound type and proc return type declaration only
 | # used for lambdas
 { and } # used for the values of complex types such as arrays, lists, maps and tuples and struct literals.
-( and ) # for function declaration args and function call args
+( and ) # for procedure declaration args and function call args
 ```
 
 ## Variable Declarations and Procedure definitions
@@ -233,7 +233,7 @@ endian # stop using big endian, but I'll cover that shit for you because I like 
 ```
 
 ## Standard Libraries for ToolipLang
-Below are libraries that may be used without assigning local variables for an include builtin function call.
+Below are libraries that may be used without assigning local variables for an include builtin procedure call.
 With that said, Toolip only brings in a library from stdlib if explicitly used in a Toolip file being ran or built, or if an included library uses that global library.
 You are only required to explicitly include libraries outside of ToolipLang's standard library
 Each and every library in standard will be as independent of one another as possible, mainly relying on the core of the language to flesh out the library features
@@ -258,7 +258,7 @@ Unlike standard libraries, these must be brought in through the include builtin.
 ```ruby
 parsers/(json, xml, html, css, csv, toml) # parsers for handling common filetypes
 web/(http, wasm, wasi)
-runtimes/(gc, arc) # allows you to opt into a default garbage collection or automatic reference counter for specified regions of your source code. Useful for writing higher-level functionality for binaries, but I strongly suggest not thrusting these memory models upon developers through libraries. It is best if each developer has the final say in how memory is managed in their codebase.
+runtimes/(gc, arc) # allows you to opt into a default garbage collection or automatic reference counter for specified regions of your source code. Useful for writing higher-level procedureality for binaries, but I strongly suggest not thrusting these memory models upon developers through libraries. It is best if each developer has the final say in how memory is managed in their codebase.
 generators/(tree_sitter, antlr, lemon)
 embeddedPLs/(lua)
 ```
@@ -276,7 +276,7 @@ local flt64 pi_double = json.parse(flt64, alloc, pi_str)
 
 Oh, and types are technically libraries. Or, more accurately, all libraries are structs, and so are your standard primitive types. So, the string, byte, char and bool types all have global procedures to use.
 
-## Type Conversion
+## Type Casting and Transmuting
 ```ruby
 uint64 piEngineer = uint64.cast(flt64, math.pi)! # hahah. funny joke
 
@@ -285,6 +285,10 @@ assert(piEngineer == 3) # assert either crashes or moves on
 infer eulerConstStr = fmt.parseFloat(flt64, math.e, 6)! # The 6 tells the formatter to cut the float string short after 6 decimal places.
 
 assert(eulerConstStr == "2.718281")
+
+uint64 piRaw = uint64.transmute(flt64, math.pi) #Turns into its IEEE 754 representation as a uint64
+
+assert(fmt.ParseInt(uint64, piRaw, 16) == "0x400921fb54442d18")
 ```
 
 ## Example HTTP server
@@ -292,16 +296,19 @@ assert(eulerConstStr == "2.718281")
 # Inspired by Crystal's front page example. I <3 Crystal btw. If you're reading this, please get Crystal's tree-sitter in the official nvim-treesitter repo.
 local typedef http = include("web/http")
 
-
-proc[void] main()
+proc[!void] main()
     local infer server = http.Server.init(|context| do
         context:response:contentType = "text/plain"
         context:response:print("Hello Web from Toolip")
     end)
 
-    local infer addr = server:bindTCP(8080)
+    local infer port = 8080
+    local infer addr = server:bindTCP(port)! do #'!' propogates errors, and allows an |errIdent| do code end block after to customize error handling.
+        io.write(io.stderr, "Could not bind TCP to port ${port}.\n")
+        return
+    end
     print("Listening on http://${addr}\n")
-    server:listen()
+    server:listen()! #'!' without a block will just panic if something goes wrong unless the ident or procedure call has custom error handling
 end
 ```
 
